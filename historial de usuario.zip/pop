@@ -1,0 +1,165 @@
+# ============================
+#   SISTEMA CON LOGIN + INVENTARIO DE LIBROS
+#   TODO EN MEMORIA - SIN CSV
+#   LIBROS GUARDADOS COMO TUPLAS
+# ============================
+
+usuarios = {}        # "usuario": "clave"
+inventarios = {}     # "usuario": [ (titulo, autor, stock, precio), ... ]
+
+
+# VALIDACIÓN DE NÚMEROS
+def numero_positivo(mensaje, tipo=int):
+    while True:
+        try:
+            valor = tipo(input(mensaje))
+            if valor > 0:
+                return valor
+            print("Debe ser mayor que 0.")
+        except:
+            print("Número inválido.")
+
+
+# ============================
+#          REGISTRO
+# ============================
+def registrar_usuario():
+    print("\n=== REGISTRO DE USUARIO ===")
+    usuario = input("Nuevo usuario: ").strip()
+    
+    if usuario in usuarios:
+        print("Ese usuario ya existe.")
+        return
+    
+    clave = input("Nueva clave: ").strip()
+    usuarios[usuario] = clave
+    inventarios[usuario] = []  # Inventario vacío del usuario
+
+    print(f"Usuario '{usuario}' creado exitosamente.")
+
+
+# ============================
+#         LOGIN
+# ============================
+def iniciar_sesion():
+    print("\n=== INICIO DE SESIÓN ===")
+    usuario = input("Usuario: ").strip()
+    clave = input("Clave: ").strip()
+
+    if usuario in usuarios and usuarios[usuario] == clave:
+        print(f"\nBienvenido, {usuario}.\n")
+        return usuario
+    
+    print("Usuario o contraseña incorrecta.")
+    return None
+
+
+# ============================
+#       INVENTARIO LIBROS
+# ============================
+def agregar_libro(inventario):
+    print("\n=== AGREGAR LIBRO ===")
+    
+    titulo = input("Título del libro: ").strip()
+    autor = input("Autor: ").strip()
+    stock = numero_positivo("Stock: ", int)
+    precio = numero_positivo("Precio: $", float)
+
+    libro = (titulo, autor, stock, precio)
+    inventario.append(libro)
+
+    print("\nLibro agregado correctamente.")
+
+
+def mostrar_libros(inventario):
+    print("\n=== INVENTARIO DEL USUARIO ===")
+    if not inventario:
+        print("No hay libros.")
+        return
+
+    for i, libro in enumerate(inventario, 1):
+        titulo, autor, stock, precio = libro
+        print(f"{i}. {titulo} | Autor: {autor} | Stock: {stock} | Precio: ${precio}")
+
+
+def buscar_libro(inventario):
+    print("\n=== BUSCAR LIBRO ===")
+    titulo = input("Título del libro: ").strip()
+
+    for libro in inventario:
+        if libro[0].lower() == titulo.lower():
+            print("\nLibro encontrado:")
+            print(f"Título: {libro[0]}")
+            print(f"Autor: {libro[1]}")
+            print(f"Stock: {libro[2]}")
+            print(f"Precio: ${libro[3]}")
+            return
+    print("No se encontró el libro.")
+
+
+def eliminar_libro(inventario):
+    print("\n=== ELIMINAR LIBRO ===")
+    titulo = input("Título a eliminar: ").strip()
+
+    for libro in inventario:
+        if libro[0].lower() == titulo.lower():
+            inventario.remove(libro)
+            print("Libro eliminado.")
+            return
+    print("No se encontró el libro.")
+
+
+# ============================
+#      MENÚ DEL INVENTARIO
+# ============================
+def menu_inventario(usuario):
+    inventario = inventarios[usuario]
+
+    while True:
+        print("\n=== MENÚ DE INVENTARIO ===")
+        print("1. Agregar libro")
+        print("2. Mostrar libros")
+        print("3. Buscar libro")
+        print("4. Eliminar libro")
+        print("5. Salir al menú principal")
+
+        op = input("Opción: ").strip()
+
+        if op == "1": agregar_libro(inventario)
+        elif op == "2": mostrar_libros(inventario)
+        elif op == "3": buscar_libro(inventario)
+        elif op == "4": eliminar_libro(inventario)
+        elif op == "5": break
+        else:
+            print("Opción inválida.")
+
+
+# ============================
+#         MENÚ PRINCIPAL
+# ============================
+def main():
+    while True:
+        print("\n=== SISTEMA PRINCIPAL ===")
+        print("1. Registrarse")
+        print("2. Iniciar sesión")
+        print("3. Salir")
+
+        op = input("Opción: ")
+
+        if op == "1":
+            registrar_usuario()
+
+        elif op == "2":
+            usuario = iniciar_sesion()
+            if usuario:
+                menu_inventario(usuario)
+
+        elif op == "3":
+            print("Adiós.")
+            break
+
+        else:
+            print("Opción inválida.")
+
+
+main()
