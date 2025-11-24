@@ -163,3 +163,267 @@ def main():
 
 
 main()
+
+
+
+# -------------------------
+# BASE DE USUARIOS (tuplas)
+# -------------------------
+usuarios = [
+    ("admin", "1234")
+]
+
+
+# ------------------------------------------
+# INVENTARIO DE LIBROS (id, titulo, autor, stock, precio)
+# ------------------------------------------
+inventario = [
+    (1, "El arte de la guerra", "Sun Tzu", 10, 30000),
+    (2, "El principito", "Antoine", 5, 20000),
+    (3, "1984", "George Orwell", 7, 25000)
+]
+
+
+# -----------------------------------------
+def registrar_usuario():
+    print("\n" + "="*50)
+    print("REGISTRO DE USUARIO")
+    print("="*50)
+
+    usuario = input("Nueva cuenta: ").strip()
+    clave = input("Nueva contraseña: ").strip()
+
+    usuarios.append((usuario, clave))
+    print("\n Usuario registrado ✔\n")
+
+
+# -----------------------------------------
+def login():
+    print("\n" + "="*50)
+    print("INICIO DE SESIÓN")
+    print("="*50)
+
+    usuario = input("Usuario: ").strip()
+    clave = input("Contraseña: ").strip()
+
+    for u in usuarios:
+        if u[0] == usuario and u[1] == clave:
+            print("\n ✔ Inicio de sesión exitoso\n")
+            return True
+
+    print("\n ❌ Usuario o contraseña incorrectos\n")
+    return False
+
+
+# -----------------------------------------
+def validar_numero_positivo(mensaje, tipo=float):
+    while True:
+        try:
+            valor = tipo(input(mensaje))
+            if valor > 0:
+                return valor
+            print(" Error: Debe ser mayor a 0")
+        except ValueError:
+            print(" Error: Número inválido")
+
+
+# -----------------------------------------
+def opcion_agregar(inventario):
+    print("\n" + "="*50)
+    print("AGREGAR LIBRO")
+    print("="*50)
+
+    titulo = input("Título del libro: ").strip()
+    autor = input("Autor: ").strip()
+    stock = validar_numero_positivo("Stock: ", int)
+    precio = validar_numero_positivo("Precio: $", int)
+
+    nuevo_id = len(inventario) + 1
+
+    inventario.append((nuevo_id, titulo, autor, stock, precio))
+    print(f"\n ✔ Libro '{titulo}' agregado.\n")
+
+
+# -----------------------------------------
+def opcion_mostrar(inventario):
+    print("\n" + "="*50)
+    print("LIBROS DISPONIBLES")
+    print("="*50)
+
+    for libro in inventario:
+        print(f"ID {libro[0]} | {libro[1]} - {libro[2]} | Stock:{libro[3]} | ${libro[4]}")
+    print()
+
+
+# -----------------------------------------
+def buscar_por_nombre(inventario, nombre):
+    nombre = nombre.lower()
+    for libro in inventario:
+        if nombre in libro[1].lower():
+            return libro
+    return None
+
+
+def opcion_buscar(inventario):
+    print("\n" + "="*50)
+    print("BUSCAR LIBRO")
+    print("="*50)
+
+    nombre = input("Nombre del libro: ").strip()
+    libro = buscar_por_nombre(inventario, nombre)
+
+    if libro:
+        print(f"\n ✔ Encontrado:")
+        print(f"  ID: {libro[0]}")
+        print(f"  Título: {libro[1]}")
+        print(f"  Autor: {libro[2]}")
+        print(f"  Stock: {libro[3]}")
+        print(f"  Precio: ${libro[4]}\n")
+    else:
+        print("\n ❌ Libro no encontrado.\n")
+
+
+# -----------------------------------------
+def opcion_actualizar(inventario):
+    print("\n" + "="*50)
+    print("ACTUALIZAR LIBRO")
+    print("="*50)
+
+    try:
+        id_libro = int(input("ID del libro a actualizar: "))
+    except:
+        print(" ID inválido")
+        return
+
+    for i, libro in enumerate(inventario):
+        if libro[0] == id_libro:
+            print(f"\nLibro actual: {libro[1]}")
+            print("1. Actualizar precio")
+            print("2. Actualizar stock")
+            print("3. Ambos")
+            op = input("Opción: ")
+
+            nuevo_precio = libro[4]
+            nuevo_stock = libro[3]
+
+            if op in ("1", "3"):
+                nuevo_precio = validar_numero_positivo("Nuevo precio: $", int)
+            if op in ("2", "3"):
+                nuevo_stock = validar_numero_positivo("Nuevo stock: ", int)
+
+            inventario[i] = (libro[0], libro[1], libro[2], nuevo_stock, nuevo_precio)
+
+            print("\n ✔ Libro actualizado\n")
+            return
+
+    print("\n ❌ No se encontró ese ID\n")
+
+
+# -----------------------------------------
+def opcion_eliminar(inventario):
+    print("\n" + "="*50)
+    print("ELIMINAR LIBRO")
+    print("="*50)
+
+    try:
+        id_libro = int(input("ID del libro: "))
+    except:
+        print(" ID inválido")
+        return
+
+    for libro in inventario:
+        if libro[0] == id_libro:
+            inventario.remove(libro)
+            print("\n ✔ Libro eliminado\n")
+            return
+
+    print("\n ❌ No existe ese ID\n")
+
+
+# -----------------------------------------
+def opcion_vender(inventario):
+    print("\n" + "="*50)
+    print("VENTA DE LIBROS")
+    print("="*50)
+
+    try:
+        id_libro = int(input("ID del libro: "))
+    except:
+        print(" ID inválido")
+        return
+
+    for i, libro in enumerate(inventario):
+        if libro[0] == id_libro:
+            cantidad = validar_numero_positivo("Cantidad a vender: ", int)
+
+            if cantidad > libro[3]:
+                print("\n ❌ Stock insuficiente\n")
+                return
+
+            nuevo_stock = libro[3] - cantidad
+            total = cantidad * libro[4]
+
+            inventario[i] = (libro[0], libro[1], libro[2], nuevo_stock, libro[4])
+
+            print(f"\n ✔ Venta realizada: {cantidad} unidades")
+            print(f" Total a pagar: ${total}\n")
+            return
+
+    print("\n ❌ Libro no encontrado\n")
+
+
+# -----------------------------------------
+def mostrar_menu():
+    print("\n" + "="*50)
+    print("SISTEMA DE LIBRERÍA")
+    print("="*50)
+    print("1. Agregar libro")
+    print("2. Mostrar libros")
+    print("3. Buscar libro")
+    print("4. Actualizar libro")
+    print("5. Eliminar libro")
+    print("6. Vender libro")
+    print("7. Salir")
+    print("="*50)
+
+
+# -----------------------------------------
+def main():
+    print("\n Bienvenido al sistema de LIBROS")
+
+    print("1. Iniciar sesión")
+    print("2. Registrar usuario")
+    op = input("Opción: ")
+
+    if op == "1":
+        if not login():
+            return
+    elif op == "2":
+        registrar_usuario()
+        if not login():
+            return
+    else:
+        print("Opción inválida")
+        return
+
+    while True:
+        mostrar_menu()
+        opcion = input("Seleccione: ")
+
+        match opcion:
+            case "1": opcion_agregar(inventario)
+            case "2": opcion_mostrar(inventario)
+            case "3": opcion_buscar(inventario)
+            case "4": opcion_actualizar(inventario)
+            case "5": opcion_eliminar(inventario)
+            case "6": opcion_vender(inventario)
+            case "7":
+                print("\n Gracias por usar el sistema.\n")
+                break
+            case _:
+                print("Opción inválida\n")
+
+
+# -----------------------------------------
+if __name__ == "__main__":
+    main()
